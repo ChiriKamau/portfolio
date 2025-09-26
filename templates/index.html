@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Skills Portfolio - Interactive Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .skill-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .skill-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 2em;
+            color: white;
+        }
+
+        .embedded { background: linear-gradient(45deg, #FF6B6B, #4ECDC4); }
+        .iot { background: linear-gradient(45deg, #45B7D1, #96CEB4); }
+        .ml { background: linear-gradient(45deg, #FECA57, #FF9FF3); }
+        .data { background: linear-gradient(45deg, #54A0FF, #5F27CD); }
+
+        .skill-card h3 {
+            color: white;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .skill-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .demo-area {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 200px;
+            position: relative;
+        }
+
+        .code-snippet {
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            color: #00ff41;
+            background: #001100;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .sensor-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .sensor-value {
+            text-align: center;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .sensor-value .label {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .sensor-value .value {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .ml-dashboard {
+            color: white;
+        }
+
+        .model-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .model-btn:hover, .model-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .training-progress {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: end;
+            height: 150px;
+            gap: 10px;
+            justify-content: space-around;
+        }
+
+        .bar {
+            background: linear-gradient(to top, #FF6B6B, #4ECDC4);
+            border-radius: 3px 3px 0 0;
+            min-width: 30px;
+            transition: height 0.8s ease;
+            position: relative;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8em;
+            color: white;
+            text-align: center;
+            width: 80px;
+        }
+
+        .interactive-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            margin: 5px 5px 5px 0;
+        }
+
+        .interactive-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .interactive-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-online { background: #00ff41; }
+        .status-offline { background: #ff4757; }
+        .status-training { background: #ffa502; }
+
+        .insights-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: white;
+        }
+
+        .insight-item {
+            margin: 8px 0;
+            padding: 5px 0;
+            border-left: 3px solid #00ff41;
+            padding-left: 10px;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .sensor-display {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Flask Skills Portfolio</h1>
+            <p>Interactive backend-powered demonstrations of technical expertise</p>
+        </div>
+
+        <div class="skills-grid">
+            <!-- Embedded Systems Card -->
+            <div class="skill-card">
+                <div class="skill-icon embedded">⚡</div>
+                <h3>Embedded Systems</h3>
+                <p>C/C++ programming for microcontrollers, real-time systems, and hardware interfacing with Flask backend processing.</p>
+                
+                <div class="demo-area">
+                    <div class="code-snippet" id="embedded-code">Click "Simulate Sensors" to see live C++ code generation...</div>
+                    <button class="interactive-btn" onclick="runEmbeddedDemo()">Simulate Sensors</button>
+                    <div id="embedded-status" style="color: #00ff41; margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+            </div>
+
+            <!-- IoT Card -->
+            <div class="skill-card">
+                <div class="skill-icon iot">🌐</div>
+                <h3>Internet of Things</h3>
+                <p>Connected devices, real-time data processing, and cloud integration with Flask API endpoints.</p>
+                
+                <div class="demo-area">
+                    <div class="sensor-display" id="iot-sensors">
+                        <div class="sensor-value">
+                            <div class="label">Temperature</div>
+                            <div class="value" id="temp-value">--°C</div>
+                        </div>
+                        <div class="sensor-value">
+                            <div class="label">Humidity</div>
+                            <div class="value" id="humidity-value">--%</div>
+                        </div>
+                        <div class="sensor-value">
+                            <div class="label">Pressure</div>
+                            <div class="value" id="pressure-value">-- hPa</div>
+                        </div>
+                        <div class="sensor-value">
+                            <div class="label">WiFi</div>
+                            <div class="value" id="wifi-status">📶</div>
+                        </div>
+                    </div>
+                    <div class="control-panel">
+                        <button class="interactive-btn" onclick="refreshIoTData()">Refresh Sensors</button>
+                        <button class="interactive-btn" onclick="controlDevice('led', 'toggle')">Toggle LED</button>
+                        <button class="interactive-btn" onclick="controlDevice('fan', 'start')">Start Fan</button>
+                    </div>
+                    <div id="iot-status" style="color: white; margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+            </div>
+
+            <!-- Machine Learning Card -->
+            <div class="skill-card">
+                <div class="skill-icon ml">🧠</div>
+                <h3>Machine Learning</h3>
+                <p>Python-based ML models with Flask backend for training, evaluation, and real-time predictions.</p>
+                
+                <div class="demo-area">
+                    <div class="ml-dashboard">
+                        <div class="model-selector">
+                            <button class="model-btn active" data-model="neural_network" onclick="selectModel(this)">Neural Network</button>
+                            <button class="model-btn" data-model="decision_tree" onclick="selectModel(this)">Decision Tree</button>
+                            <button class="model-btn" data-model="svm" onclick="selectModel(this)">SVM</button>
+                        </div>
+                        <button class="interactive-btn" onclick="trainModel()">Train Model</button>
+                        <button class="interactive-btn" onclick="makePrediction()">Make Prediction</button>
+                        <div class="training-progress" id="ml-progress" style="display: none;"></div>
+                        <div id="ml-results" style="margin-top: 10px; font-size: 0.9em;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Science Card -->
+            <div class="skill-card">
+                <div class="skill-icon data">📊</div>
+                <h3>Data Science</h3>
+                <p>Python data analysis, visualization, and statistical modeling with Flask-powered insights generation.</p>
+                
+                <div class="demo-area">
+                    <div class="control-panel">
+                        <button class="interactive-btn" onclick="analyzeData('sales')">Analyze Sales Data</button>
+                        <button class="interactive-btn" onclick="analyzeData('random')">Random Dataset</button>
+                        <button class="interactive-btn" onclick="generateVisualization('bar')">Bar Chart</button>
+                        <button class="interactive-btn" onclick="generateVisualization('line')">Line Chart</button>
+                    </div>
+                    
+                    <div class="chart-container" id="chart-container" style="display: none;">
+                        <div class="bar-chart" id="bar-chart"></div>
+                    </div>
+                    
+                    <div class="insights-panel" id="insights-panel" style="display: none;">
+                        <h4>📈 Data Insights</h4>
+                        <div id="insights-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentModel = 'neural_network';
+        let trainingInProgress = false;
+
+        // Embedded Systems Functions
+        async function runEmbeddedDemo() {
+            const statusDiv = document.getElementById('embedded-status');
+            const codeDiv = document.getElementById('embedded-code');
+            
+            statusDiv.innerHTML = '<span class="loading"></span> Simulating sensor readings...';
+            
+            try {
+                const response = await fetch('/api/embedded/simulate');
+                const data = await response.json();
+                
+                codeDiv.textContent = data.code;
+                statusDiv.innerHTML = `<span class="status-indicator status-online"></span>Simulation complete - ${Object.keys(data.sensors).length} sensors active`;
+                
+                // Show sensor values briefly
+                setTimeout(() => {
+                    let sensorInfo = 'Sensor Values: ';
+                    for (const [name, sensor] of Object.entries(data.sensors)) {
+                        if (name === 'temperature') sensorInfo += `${sensor.celsius}°C `;
+                        else if (name === 'light') sensorInfo += `${sensor.lux} lux `;
+                        else if (name === 'moisture') sensorInfo += `${sensor.percentage}% `;
+                    }
+                    statusDiv.innerHTML += `<br><small>${sensorInfo}</small>`;
+                }, 1000);
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status-indicator status-offline"></span>Connection failed';
+                console.error('Error:', error);
+            }
+        }
+
+        // IoT Functions
+        async function refreshIoTData() {
+            const statusDiv = document.getElementById('iot-status');
+            statusDiv.innerHTML = '<span class="loading"></span> Fetching sensor data...';
+            
+            try {
+                const response = await fetch('/api/iot/sensors');
+                const data = await response.json();
+                
+                document.getElementById('temp-value').textContent = data.temperature + '°C';
+                document.getElementById('humidity-value').textContent = data.humidity + '%';
+                document.getElementById('pressure-value').textContent = data.pressure + ' hPa';
+                
+                const wifiIcons = {
+                    'weak': '📶',
+                    'medium': '📶📶',
+                    'strong': '📶📶📶'
+                };
+                document.getElementById('wifi-status').textContent = wifiIcons[data.wifi_strength];
+                
+                statusDiv.innerHTML = `<span class="status-indicator status-online"></span>Last updated: ${new Date(data.last_updated).toLocaleTimeString()}`;
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status-indicator status-offline"></span>Connection failed';
+                console.error('Error:', error);
+            }
+        }
+
+        async function controlDevice(device, action) {
+            const statusDiv = document.getElementById('iot-status');
+            
+            try {
+                const response = await fetch('/api/iot/control', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ device, action })
+                });
+                
+                const data = await response.json();
+                statusDiv.innerHTML = `<span class="status-indicator status-online"></span>${data.message}`;
+                
+            } catch (error) {
+                statusDiv.innerHTML = '<span class="status-indicator status-offline"></span>Control failed';
+                console.error('Error:', error);
+            }
+        }
+
+        // ML Functions
+        function selectModel(button) {
+            document.querySelectorAll('.model-btn').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            currentModel = button.dataset.model;
+        }
+
+        async function trainModel() {
+            if (trainingInProgress) return;
+            
+            const progressDiv = document.getElementById('ml-progress');
+            const resultsDiv = document.getElementById('ml-results');
+            
+            trainingInProgress = true;
+            progressDiv.style.display = 'block';
+            progressDiv.innerHTML = '<span class="loading"></span> Initializing training...';
+            resultsDiv.innerHTML = '';
+            
+            try {
+                const response = await fetch('/api/ml/train', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        model: currentModel, 
+                        epochs: 25 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Show training progress
+                let progressText = `Training ${currentModel}...\n\n`;
+                data.training_progress.forEach(epoch => {
+                    progressText += `Epoch ${epoch.epoch}: Accuracy=${epoch.accuracy}, Loss=${epoch.loss}\n`;
+                });
+                
+                progressDiv.textContent = progressText;
+                
+                resultsDiv.innerHTML = `
+                    <span class="status-indicator status-online"></span>
+                    <strong>Training Complete!</strong><br>
+                    Final Accuracy: ${(data.final_accuracy * 100).toFixed(1)}%<br>
+                    Training Time: ${data.model_info.training_time}s<br>
+                    <small>Model ready for predictions</small>
+                `;
+                
+            } catch (error) {
+                progressDiv.innerHTML = 'Training failed';
+                resultsDiv.innerHTML = '<span class="status-indicator status-offline"></span>Training error';
+                console.error('Error:', error);
+            }
+            
+            trainingInProgress = false;
+        }
+
+        async function makePrediction() {
+            const resultsDiv = document.getElementById('ml-results');
+            resultsDiv.innerHTML = '<span class="loading"></span> Making prediction...';
+            
+            try {
+                const response = await fetch('/api/ml/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        model: currentModel,
+                        input: [Math.random(), Math.random(), Math.random(), Math.random()]
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <span class="status-indicator status-online"></span>
+                    <strong>Prediction Result:</strong><br>
+                    Output: ${data.prediction}<br>
+                    Confidence: ${(data.confidence * 100).toFixed(1)}%<br>
+                    Model Accuracy: ${(data.model_accuracy * 100).toFixed(1)}%
+                `;
+                
+            } catch (error) {
+                if (error.message.includes('400')) {
+                    resultsDiv.innerHTML = '<span class="status-indicator status-offline"></span>Please train the model first';
+                } else {
+                    resultsDiv.innerHTML = '<span class="status-indicator status-offline"></span>Prediction failed';
+                }
+                console.error('Error:', error);
+            }
+        }
+
+        // Data Science Functions
+        async function analyzeData(type) {
+            const insightsPanel = document.getElementById('insights-panel');
+            const insightsList = document.getElementById('insights-list');
+            
+            insightsPanel.style.display = 'block';
+            insightsList.innerHTML = '<span class="loading"></span> Analyzing data...';
+            
+            try {
+                const response = await fetch('/api/data/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        type: type,
+                        size: 1000 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                insightsList.innerHTML = '';
+                data.insights.forEach(insight => {
+                    const div = document.createElement('div');
+                    div.className = 'insight-item';
+                    div.textContent = insight;
+                    insightsList.appendChild(div);
+                });
+                
+            } catch (error) {
+                insightsList.innerHTML = '<div class="insight-item">Analysis failed</div>';
+                console.error('Error:', error);
+            }
+        }
+
+        async function generateVisualization(type) {
+            const chartContainer = document.getElementById('chart-container');
+            const barChart = document.getElementById('bar-chart');
+            
+            chartContainer.style.display = 'block';
+            barChart.innerHTML = '<span class="loading"></span> Generating visualization...';
+            
+            try {
+                const response = await fetch(`/api/data/visualize?type=${type}`);
+                const data = await response.json();
+                
+                if (data.type === 'bar') {
+                    barChart.innerHTML = '';
+                    data.labels.forEach((label, index) => {
+                        const barContainer = document.createElement('div');
+                        barContainer.style.position = 'relative';
+                        barContainer.style.display = 'flex';
+                        barContainer.style.flexDirection = 'column';
+                        barContainer.style.alignItems = 'center';
+                        
+                        const bar = document.createElement('div');
+                        bar.className = 'bar';
+                        const height = (data.data[index] / Math.max(...data.data)) * 120;
+                        bar.style.height = height + 'px';
+                        
+                        const labelDiv = document.createElement('div');
+                        labelDiv.className = 'bar-label';
+                        labelDiv.textContent = label;
+                        
+                        const valueDiv = document.createElement('div');
+                        valueDiv.style.color = 'white';
+                        valueDiv.style.fontSize = '0.8em';
+                        valueDiv.style.marginTop = '5px';
+                        valueDiv.textContent = typeof data.data[index] === 'number' ? 
+                            data.data[index].toFixed(3) : data.data[index];
+                        
+                        barContainer.appendChild(bar);
+                        barContainer.appendChild(labelDiv);
+                        barContainer.appendChild(valueDiv);
+                        barChart.appendChild(barContainer);
+                    });
+                } else {
+                    barChart.innerHTML = `<div style="color: white; text-align: center; padding: 50px;">
+                        <h4>${data.title}</h4>
+                        <p>Chart Type: ${data.type}</p>
+                        <p>Data Points: ${data.data.length}</p>
+                    </div>`;
+                }
+                
+            } catch (error) {
+                barChart.innerHTML = '<div style="color: white; text-align: center; padding: 50px;">Visualization failed</div>';
+                console.error('Error:', error);
+            }
+        }
+
+        // Auto-refresh IoT data every 10 seconds
+        setInterval(refreshIoTData, 10000);
+
+        // Initialize on page load
+        window.onload = function() {
+            // Stagger card animations
+            const cards = document.querySelectorAll('.skill-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = index * 0.2 + 's';
+            });
+            
+            // Load initial IoT data
+            refreshIoTData();
+            
+            console.log('Flask Skills Portfolio loaded successfully!');
+        };
+    </script>
+</body>
+</html>
